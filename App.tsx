@@ -40,10 +40,7 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.fullScreen}
-        onPress={() => setPaused(paused => !paused)}
-      >
+
         <Video
           source={require("./demoVideo.mp4")}
           paused={paused}
@@ -53,10 +50,10 @@ const App = () => {
           playWhenInactive={true}
           ignoreSilentSwitch={'ignore'}
           onProgress={setupControls}
+          controls={true}
           // @ts-ignore Required for compatibility with native controls
           mixWithOthers="mix"
         />
-      </TouchableOpacity>
     </View>
   );
 };
