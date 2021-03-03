@@ -1,34 +1,50 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import MusicControl from 'react-native-music-control'
-import Video from 'react-native-video';
+import MusicControl, { Command } from 'react-native-music-control'
+import Video, { OnProgressData } from 'react-native-video';
 
-const DEMO_VIDEO = "https://www.sample-videos.com/video/mp4/720/big_buck_bunny_720p_10mb.mp4";
 
 const App = () => {
   const [paused, setPaused] = useState(true);
+  const [areControlsSetup, setAreControlsSetup] = useState(false);
+
+  useEffect(() => {
+    MusicControl.enableBackgroundMode(true);
+    MusicControl.enableControl(Command.closeNotification, true, { when: 'always' });
+    MusicControl.enableControl(Command.play, true);
+    MusicControl.enableControl(Command.pause, true);
+
+    return () => {
+      MusicControl.stopControl();
+    }
+  });
+
+  const setupControls = (data: OnProgressData)  => {
+    if (!areControlsSetup) {
+      MusicControl.setNowPlaying({
+        title: "demo video",
+        artist: "Pedrito el Pupito",
+        duration: data.playableDuration, 
+        elapsedTime: data.currentTime,
+        artwork: require("./demoVideoArtwork.jpg"),
+      });
+
+      MusicControl.on(Command.play, () => setPaused(false));
+      MusicControl.on(Command.pause, () => setPaused(true));
+      setAreControlsSetup(true);
+      console.log("Setup!!")
+    }
+  }
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.fullScreen}
-        onPress={() => {
-          console.log("video paused: ", !paused);
-          setPaused(paused => !paused)
-        }}
+        onPress={() => setPaused(paused => !paused)}
       >
         <Video
           source={require("./demoVideo.mp4")}
@@ -38,6 +54,9 @@ const App = () => {
           playInBackground={true}
           playWhenInactive={true}
           ignoreSilentSwitch={'ignore'}
+          onProgress={setupControls}
+          // @ts-ignore Required for compatibility with native controls
+          mixWithOthers="mix"
         />
       </TouchableOpacity>
     </View>
