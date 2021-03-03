@@ -15,13 +15,13 @@ const App = () => {
   useEffect(() => {
     MusicControl.enableBackgroundMode(true);
     MusicControl.enableControl(Command.closeNotification, true, { when: 'always' });
-    MusicControl.enableControl(Command.play, true);
-    MusicControl.enableControl(Command.pause, true);
-
+    MusicControl.on(Command.play, () => setPaused(false));
+    MusicControl.on(Command.pause, () => setPaused(true));
     return () => {
+      console.log("stop control");
       MusicControl.stopControl();
     }
-  });
+  }, [setPaused]);
 
   const setupControls = (data: OnProgressData)  => {
     if (!areControlsSetup) {
@@ -31,13 +31,11 @@ const App = () => {
         duration: data.playableDuration, 
         elapsedTime: data.currentTime,
         artwork: require("./demoVideoArtwork.jpg"),
-      });
-
-      MusicControl.on(Command.play, () => setPaused(false));
-      MusicControl.on(Command.pause, () => setPaused(true));
-      setAreControlsSetup(true);
-      console.log("Setup!!")
-    }
+      });    
+      MusicControl.enableControl(Command.play, true);
+      MusicControl.enableControl(Command.pause, true);
+      console.log("playing!!", data.playableDuration);   
+    } 
   }
 
   return (
